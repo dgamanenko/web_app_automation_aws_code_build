@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  selenoid:
+    image: "aerokube/selenoid:latest"
+    network_mode: bridge
+    restart: always
+    ports:
+      - "4444:4444"
+    volumes:
+      - "./browsers:/etc/selenoid/" # assumed browsers dir contains browsers.json
+      - '/dev/shm:/dev/shm'
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment: ["TZ=America/Los_Angeles"]
+    command: ["-limit", "30", "-timeout", "10m"]
+    healthcheck:
+      test: curl --fail -s http://localhost:4444/ || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+
+  selenoid-ui:
+    image: "aerokube/selenoid-ui:latest"
+    network_mode: bridge
+    restart: always
+    links:
+      - selenoid
+    ports:
+      - "8080:8080"
+    command: ["--selenoid-uri", "http://selenoid:4444" ]

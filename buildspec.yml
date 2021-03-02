@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+        - apt-get update -y
+        - apt-get install -y docker
+        - pip install selenium
+        - docker pull twilio/selenoid:chrome_stable
+  pre_build:
+    commands:
+      - docker-compose up -d
+  build:
+    commands:
+      - mvn -v
+      - python test.py
+artifacts:
+  files:
+    - py_report_images/*.png
+  discard-paths: yes
